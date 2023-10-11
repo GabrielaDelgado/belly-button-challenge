@@ -16,4 +16,4 @@ These programs were uaed to read and scrap the data from the website provided an
 
 Acknowledgments:
 
-AskBCS Learning Assistants who provided documentation and took a look at my homework to answer some questions and help me troubleshoot.
+Tutor Geronimo Perez and AskBCS Learning Assistants who provided documentation and took a look at my homework to answer some questions and help me troubleshoot.
