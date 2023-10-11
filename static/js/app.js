@@ -1,73 +1,87 @@
 // Read the URL
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
 
-// Log the URL
-d3.json(url).then(function(data) {
-    console.log(data);
-});
-
-
 // Initialize the page
-function init()
-{
+function init() {
     // Select dropdown menu using d3 and assign a value
     let dropdownMenu = d3.select("#selDataset");
-    d3.json(url).then(function(data) {        
-        
+    d3.json(url).then(function (data) {
+
         // Define a variable for the sample names and attach them to the dropdown
-        let names = data.names;        
-        names.forEach((id) =>
-        {
-            console.log(id);
+        let names = data.names;
+        names.forEach((id) => {
             dropdownMenu.append("option")
-            .text(id)
-            .property("value",id);
+                .text(id);
         });
-        
+
         // Define the first sample and log it
         let sample1 = names[0];
-        console.log(sample1);
 
         // createMetadata(sample1);
-        createBarChart(sample1);
+        optionChanged(sample1);
         // createBubbleChart(sample1);
     });
 };
 
 // Function to show the bar chart
-function createBarChart(sample) {
-    d3.json(url).then(function(data) {
+function optionChanged(sample) {
+    d3.json(url).then(function ({ metadata, samples }) {
 
-        let samples = data.samples;
-        let values = samples.filter(result => result.id == sample);
-        let valueData = values[0];
+        let meta = metadata.find(obj => obj.id == sample);
 
-        // Define the vairables for the graphs
-        let sample_values = valueData.sample_values;
-        let otu_ids = valueData.otu_ids;
-        let otu_labels = valueData.otu_samples;
+        d3.select(".panel-body").html("");
+        Object.entries(meta).forEach(([key, val]) => {
+            d3.select(".panel-body").append("h5").text(`${key.toUpperCase()}: ${val}`)
+        })
 
-        console.log(sample_values, otu_ids, otu_labels);
+        let { otu_ids, otu_labels, sample_values } = samples.find(result => result.id == sample);
 
         let bar = {
-            x: otu_ids,
-            y: sample_values,
-            text: otu_labels,
+            x: sample_values.slice(0, 10).reverse(),
+            y: otu_ids.slice(0, 10).reverse().map(x => `OTU ${x}`),
+            text: otu_labels.slice(0, 10).reverse(),
             type: 'bar',
             orientation: 'h'
         };
-          
-          Plotly.newPlot("bar", [bar])
+
+        Plotly.newPlot("bar", [bar]);
+
+        //   bubble chart
+
+        let trace1 =
+        {
+            y: sample_values,
+            x: otu_ids,
+            text: otu_labels,
+            mode: "markers",
+            marker:
+            {
+                size: sample_values,
+                color: otu_ids,
+                colorscale: "Earth"
+            }
+        };
+
+        Plotly.newPlot("bubble", [trace1])
+
+
+
+        // Metadata
+        var data = [
+            {
+                domain: { x: [0, 1], y: [0, 1] },
+                value: meta.wfreq,
+                title: { text: "<b> Belly Button Washing Frequency </b><br> Scrubs per Week" },
+                type: "indicator",
+                mode: "gauge+number",
+                delta: { reference: 400 },
+                gauge: { axis: { range: [null, 9] } }
+            }
+        ];
+
+        var layout = { width: 600, height: 400 };
+        Plotly.newPlot('gauge', data, layout);
     });
 };
 
-// // Function to show the bubble chart
-// function createBubbleChart(sample) {
-//     d3.json(url).then(function(data) {
-
-//         let sample 
-//     });
-// }
-
-// Initialize webpage
 init();
